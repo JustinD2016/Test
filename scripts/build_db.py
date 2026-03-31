@@ -519,6 +519,14 @@ def main():
         build_league_averages(conn)
         build_zscores_with_pandas(conn)
 
+        # Drop raw import tables to save space (CSVs are in the repo)
+        print("\nStep 10: Dropping raw import tables to reduce DB size...")
+        for table in ["batting", "pitching", "fielding", "teams", "parks", "homegames"]:
+            conn.execute(f"DROP TABLE IF EXISTS [{table}]")
+        conn.execute("VACUUM")
+        conn.commit()
+        print("  Dropped raw tables and vacuumed.")
+
         # Print summary
         cursor = conn.cursor()
         tables = cursor.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()

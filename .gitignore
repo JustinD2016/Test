@@ -1,5 +1,4 @@
 data/csv/
-data/lahman.db
 __pycache__/
 *.pyc
 .streamlit/secrets.toml
