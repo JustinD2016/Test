@@ -22,7 +22,7 @@ from src.db import (
 )
 from src.stats import BATTING_STATS, PITCHING_STATS
 from src.ranking import rank_batters, rank_pitchers
-from src.ui import render_sidebar, render_results
+from src.ui import render_sidebar, render_stat_controls, render_results
 
 
 def main():
@@ -51,14 +51,17 @@ def main():
     end_year = config["end_year"]
     position = config["position"]
     top_n = config["top_n"]
-    selected_stats = config["selected_stats"]
-    weights = config["weights"]
     min_pa = config["min_pa"]
     min_ip = config["min_ip"]
 
     # Display current filter summary
     st.markdown(f"**Showing top {top_n} {mode.lower()}** from **{start_year}** to **{end_year}**"
                 + (f" at **{position}**" if mode == "Batters" and position != "All" else ""))
+
+    # Stat selection and weights on main page
+    selected_stats, weights = render_stat_controls(mode)
+
+    st.divider()
 
     if mode == "Batters":
         stat_defs = BATTING_STATS
@@ -100,9 +103,10 @@ def main():
         weighted by plate appearances (batters) or innings pitched (pitchers), so
         full seasons count more than partial ones.
 
-        **Composite Score**: Your selected stats are weighted according to the sliders
-        in the sidebar. The weights are normalized to sum to 100%. The final composite
-        score is the weighted average of the z-scores.
+        **Rating (100+ scale)**: Your selected stats are weighted according to the sliders
+        above the results table. The weights are normalized to sum to 100%. The final
+        rating uses a 100-based scale like OPS+ or ERA+: 100 = league average,
+        150 = 50% better than average, 200 = twice as good as average.
 
         **Inverse Stats**: For stats where lower is better (ERA, WHIP, BB/9), the
         z-scores are inverted so that "better" always means a higher z-score.
